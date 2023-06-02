@@ -3,13 +3,14 @@ from langchain.vectorstores import Pinecone
 from langchain.chains import RetrievalQA
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
-from langchain.memory import ConversationSummaryBufferMemory, ConversationBufferMemory
+from langchain.memory import ConversationSummaryBufferMemory, ConversationBufferMemory, ConversationBufferWindowMemory
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAIChat
 import pinecone
 from dotenv import load_dotenv
+from langchain.chat_models import ChatOpenAI
 
 load_dotenv()
 
@@ -51,14 +52,15 @@ PROMPT1 = PromptTemplate(
 
 docsearch = Pinecone.from_existing_index(PINECONE_INDEX, embeddings, namespace=PROJECT_NAME)
 qa = RetrievalQA.from_chain_type(
-    llm=OpenAIChat(model="gpt-3.5-turbo"),
+    llm=ChatOpenAI(model="gpt-3.5-turbo"),
     chain_type="stuff",
     retriever=docsearch.as_retriever(search_kwargs={"k": 3}),
     return_source_documents=True,
     chain_type_kwargs={
         "verbose": True,
         "prompt": PROMPT1,
-        "memory": ConversationBufferMemory(
+        "memory": ConversationBufferWindowMemory(
+            k=3,
             memory_key="chat_history",
             input_key="question"),
     }
@@ -75,14 +77,15 @@ def get_response(user_message):
 def reset():
     global qa
     qa = RetrievalQA.from_chain_type(
-        llm=OpenAIChat(model="gpt-3.5-turbo"),
+        llm=ChatOpenAI(model="gpt-3.5-turbo"),
         chain_type="stuff",
         retriever=docsearch.as_retriever(search_kwargs={"k": 3}),
         return_source_documents=True,
         chain_type_kwargs={
             "verbose": True,
             "prompt": PROMPT1,
-            "memory": ConversationBufferMemory(
+            "memory": ConversationBufferWindowMemory(
+                k=3,
                 memory_key="chat_history",
                 input_key="question"),
         }
