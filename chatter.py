@@ -51,7 +51,7 @@ PROMPT1 = PromptTemplate(
 
 docsearch = Pinecone.from_existing_index(PINECONE_INDEX, embeddings, namespace=PROJECT_NAME)
 qa = RetrievalQA.from_chain_type(
-    llm=OpenAIChat(model="gpt-4"),
+    llm=OpenAIChat(model="gpt-3.5-turbo"),
     chain_type="stuff",
     retriever=docsearch.as_retriever(search_kwargs={"k": 3}),
     return_source_documents=True,
@@ -75,7 +75,7 @@ def get_response(user_message):
 def reset():
     global qa
     qa = RetrievalQA.from_chain_type(
-        llm=OpenAIChat(model="gpt-4"),
+        llm=OpenAIChat(model="gpt-3.5-turbo"),
         chain_type="stuff",
         retriever=docsearch.as_retriever(search_kwargs={"k": 3}),
         return_source_documents=True,
