@@ -7,6 +7,7 @@ from langchain.memory import ConversationSummaryBufferMemory, ConversationBuffer
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain import LLMChain
 from langchain.chat_models import ChatOpenAI
+from langchain.llms import OpenAIChat
 import pinecone
 from dotenv import load_dotenv
 
@@ -50,7 +51,7 @@ PROMPT1 = PromptTemplate(
 
 docsearch = Pinecone.from_existing_index(PINECONE_INDEX, embeddings, namespace=PROJECT_NAME)
 qa = RetrievalQA.from_chain_type(
-    llm=OpenAI(),
+    llm=OpenAIChat(model="gpt-4"),
     chain_type="stuff",
     retriever=docsearch.as_retriever(search_kwargs={"k": 3}),
     return_source_documents=True,
@@ -74,7 +75,7 @@ def get_response(user_message):
 def reset():
     global qa
     qa = RetrievalQA.from_chain_type(
-        llm=OpenAI(),
+        llm=OpenAIChat(model="gpt-4"),
         chain_type="stuff",
         retriever=docsearch.as_retriever(search_kwargs={"k": 3}),
         return_source_documents=True,
